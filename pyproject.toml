@@ -1,3 +1,21 @@
-[tool.black]
-line-length = 79
-target-version = ['py38']
+[project]
+name = "carla-interface"
+version = "0.0.0"
+authors = [{ name = "MamoruDS", email = "mamoruds.io@gmail.com" }]
+dependencies = []
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = ["ruff>=0.4.8"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/carla"]

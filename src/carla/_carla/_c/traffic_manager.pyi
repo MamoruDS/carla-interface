@@ -1,11 +1,13 @@
 # https://github.com/carla-simulator/carla/tree/master/LibCarla/source/carla/trafficmanager
-from ..geom import Location
-from ..map import WayPoint
 from enum import IntEnum
 from typing import List, Tuple
 
+from ..geom import Location
+from ..map import WayPoint
+
 
 TM_DEFAULT_PORT = 8000
+
 
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/trafficmanager/SimpleWaypoint.h#L25
 class RoadOption(IntEnum):

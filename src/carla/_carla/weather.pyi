@@ -2,7 +2,6 @@
 from __future__ import annotations
 from typing_extensions import Self
 
-
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/rpc/WeatherParameters.h
 class WeatherParameters:
     def __init__(

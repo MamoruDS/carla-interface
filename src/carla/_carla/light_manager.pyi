@@ -107,9 +107,7 @@ class Light:
 
 
 class LightManager:
-    def get_all_lights(
-        self, light_group: LightGroup = LightGroup.NONE
-    ) -> List[Light]:
+    def get_all_lights(self, light_group: LightGroup = LightGroup.NONE) -> List[Light]:
         raise NotImplementedError
 
     def turn_on(self, lights: List[Light]) -> None:
@@ -146,17 +144,13 @@ class LightManager:
     def set_intensity(self, lights: List[Light], intensity: float) -> None:
         raise NotImplementedError
 
-    def set_intensities(
-        self, lights: List[Light], intensities: List[float]
-    ) -> None:
+    def set_intensities(self, lights: List[Light], intensities: List[float]) -> None:
         raise NotImplementedError
 
     def get_intensity(self, lights: List[Light]) -> List[float]:
         raise NotImplementedError
 
-    def set_light_group(
-        self, lights: List[Light], light_group: LightGroup
-    ) -> None:
+    def set_light_group(self, lights: List[Light], light_group: LightGroup) -> None:
         raise NotImplementedError
 
     def set_light_groups(
@@ -167,9 +161,7 @@ class LightManager:
     def get_light_group(self, lights: List[Light]) -> List[LightGroup]:
         raise NotImplementedError
 
-    def set_light_state(
-        self, lights: List[Light], light_state: LightState
-    ) -> None:
+    def set_light_state(self, lights: List[Light], light_state: LightState) -> None:
         raise NotImplementedError
 
     def set_light_states(

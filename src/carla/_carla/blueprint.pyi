@@ -3,7 +3,6 @@ from enum import IntEnum
 from typing import Generic, List, TypeVar, Union
 from typing_extensions import Self
 
-
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/rpc/ActorAttributeType.h
 class ActorAttributeType(IntEnum):
     Bool = 0
@@ -12,9 +11,7 @@ class ActorAttributeType(IntEnum):
     String = 3
     RGBColor = 4
 
-
 _C = TypeVar("_C", bound=Union[int, float])
-
 
 class _Color(Generic[_C]):
     def __init__(self, r: _C, g: _C, b: _C, a: _C = 255) -> None:
@@ -58,15 +55,11 @@ class _Color(Generic[_C]):
     def __ne__(self, __o: Self) -> bool:
         raise NotImplementedError
 
-
 class Color(_Color[int]):
     def __str__(self) -> str:
         raise NotImplementedError
 
-
-class FloatColor(_Color[float]):
-    ...
-
+class FloatColor(_Color[float]): ...
 
 class OpticalFlowPixel:
     def __init__(self, x: float = 0, y: float = 0) -> None:
@@ -96,7 +89,6 @@ class OpticalFlowPixel:
 
     def __str__(self) -> str:
         raise NotImplementedError
-
 
 class ActorAttribute:
     @property
@@ -151,7 +143,6 @@ class ActorAttribute:
     def __str__(self) -> str:
         raise NotImplementedError
 
-
 class ActorBlueprint:
     @property
     def id(self) -> str:
@@ -198,7 +189,6 @@ class ActorBlueprint:
     def __str__(self) -> str:
         raise NotImplementedError
 
-
 class BlueprintLibrary:
     def find(self, id: str) -> ActorBlueprint:
         raise NotImplementedError
@@ -224,9 +214,3 @@ class BlueprintLibrary:
 
     def __str__(self) -> str:
         raise NotImplementedError
-
-
-bl = BlueprintLibrary()
-
-for i in bl:
-    print(i)

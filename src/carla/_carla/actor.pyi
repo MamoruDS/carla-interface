@@ -15,58 +15,84 @@ from .geom import BoundingBox, Location, Transform, Vector3D
 from .map import WayPoint
 from .world import World
 from enum import IntEnum
-from typing import Any, Dict, Iterable, List
-
+from typing import Dict, List
 
 class ActorState(IntEnum):
     Invalid = 0
     Active = 1
     Dormant = 2
 
-
-class vector_of_ints(vector_of[int]):
-    ...
-
+class vector_of_ints(vector_of[int]): ...
 
 class Actor:
     @property
     def id(self) -> ActorId:
+        """
+        Identifier for this actor. Unique during a given episode.
+        """
         raise NotImplementedError
 
     @property
     def type_id(self) -> str:
+        """
+        The identifier of the blueprint this actor was based on, e.g. `vehicle.ford.mustang`.
+        """
         raise NotImplementedError
 
     @property
     def parent(self) -> Actor:
+        """
+        Actors may be attached to a parent actor that they will follow around.
+        This is said actor.
+        """
         raise NotImplementedError
 
     @property
     def semantic_tags(self) -> List[int]:
+        """A list of semantic tags provided by the blueprint listing components for this actor. E.g. a traffic light could be tagged with `Pole` and `TrafficLight`. These tags are used by the semantic segmentation sensor. Find more about this and other sensors [here](ref_sensors.md#semantic-segmentation-camera)."""
         raise NotImplementedError
 
     @property
     def actor_state(self) -> ActorState:
+        """
+        Returns the `carla.ActorState`, which can identify if the actor is Active, Dormant or Invalid.
+        """
         raise NotImplementedError
 
     @property
     def is_alive(self) -> bool:
+        """
+        Returns whether this object was destroyed using this actor handle.
+        """
         raise NotImplementedError
 
     @property
     def is_dormant(self) -> bool:
+        """
+        Returns whether this actor is dormant (True) or not (False) - the opposite of is_active.
+        """
         raise NotImplementedError
 
     @property
     def is_active(self) -> bool:
+        """
+        Returns whether this actor is active (True) or not (False).
+        """
         raise NotImplementedError
 
     @property
     def attributes(self) -> Dict[str, str]:  # TODO: verify this
+        """
+        A dictionary containing the attributes of the blueprint this actor was based on.
+        """
         raise NotImplementedError
 
     @property
     def bounding_box(self) -> BoundingBox:
+        """
+        Bounding box containing the geometry of the actor.
+        Its location and rotation are relative to the actor it is attached to.
+        """
         raise NotImplementedError
 
     def get_world(self) -> World:  # TODO: verify this
@@ -204,7 +230,6 @@ class Actor:
     def __str__(self) -> str:
         raise NotImplementedError
 
-
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/rpc/VehicleLightState.h
 class VehicleLightState(IntEnum):
     NONE = 0
@@ -221,17 +246,15 @@ class VehicleLightState(IntEnum):
     Special2 = 0x1 << 10
     All = 0xFFFFFFFF
 
-
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/rpc/VehicleWheels.h#L15
 class VehicleWheelLocation(IntEnum):
     FL_Wheel = 0
     FR_Wheel = 1
-    BL_Wheel = (2,)
+    BL_Wheel = 2
     BR_Wheel = 3
     # Use for bikes and bicycles
     Front_Wheel = 0
     Back_Wheel = 1
-
 
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/rpc/VehicleDoor.h#L16
 class VehicleDoor:
@@ -242,7 +265,6 @@ class VehicleDoor:
     Hood = 4
     Trunk = 5
     All = 6
-
 
 class Vehicle(Actor):
     def apply_control(self, control: VehicleControl) -> None:
@@ -305,9 +327,7 @@ class Vehicle(Actor):
         """
         raise NotImplementedError
 
-    def apply_physics_control(
-        self, physics_control: VehiclePhysicsControl
-    ) -> None:
+    def apply_physics_control(self, physics_control: VehiclePhysicsControl) -> None:
         """
         Apply physics control to this vehicle
         """
@@ -397,7 +417,6 @@ class Vehicle(Actor):
     def __str__(self) -> str:
         raise NotImplementedError
 
-
 class Walker(Actor):
     def apply_control(self, control: WalkerControl) -> None:
         """
@@ -435,7 +454,6 @@ class Walker(Actor):
     def __str__(self) -> str:
         raise NotImplementedError
 
-
 class WalkerAIController(Actor):
     def start(self) -> None:
         raise NotImplementedError
@@ -452,12 +470,10 @@ class WalkerAIController(Actor):
     def __str__(self) -> str:
         raise NotImplementedError
 
-
 class TrafficSign(Actor):
     @property
     def trigger_volume(self) -> BoundingBox:
         raise NotImplementedError
-
 
 # https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/rpc/TrafficLightState.h#L16
 class TrafficLightState(IntEnum):
@@ -466,7 +482,6 @@ class TrafficLightState(IntEnum):
     Green = 2
     Off = 3
     Unknown = 4
-
 
 class TrafficLight(TrafficSign):
     @property

@@ -55,6 +55,7 @@ class _Vector:
 class Vector2D(_Vector):
     def __init__(self, x: float = 0.0, y: float = 0.0) -> None:
         raise NotImplementedError
+
     @property
     def x(self) -> float:
         raise NotImplementedError
@@ -72,19 +73,15 @@ class Vector2D(_Vector):
         raise NotImplementedError
 
 
-
-class vector_of_vector2D(vector_of[Vector2D]):
-    ...
+class vector_of_vector2D(vector_of[Vector2D]): ...
 
 
 class Vector3D(_Vector):
     @overload
-    def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None:
-        ...
+    def __init__(self, x: float = 0.0, y: float = 0.0, z: float = 0.0) -> None: ...
 
     @overload
-    def __init__(self, rhs: Location) -> None:
-        ...
+    def __init__(self, rhs: Location) -> None: ...
 
     def __init__(self, *args) -> None:  # type: ignore
         raise NotImplementedError
@@ -112,7 +109,6 @@ class Vector3D(_Vector):
     @z.setter
     def z(self, val: float) -> None:
         raise NotImplementedError
-
 
     def cross(self, vector: Vector3D) -> Vector3D:
         raise NotImplementedError
@@ -160,9 +156,7 @@ class Location(Vector3D):
 
 
 class Rotation:
-    def __init__(
-        self, pitch: float = 0.0, yaw: float = 0.0, roll: float = 0.0
-    ) -> None:
+    def __init__(self, pitch: float = 0.0, yaw: float = 0.0, roll: float = 0.0) -> None:
         raise NotImplementedError
 
     @property
@@ -233,7 +227,6 @@ class Transform:
     def rotation(self, val: Rotation) -> None:
         raise NotImplementedError
 
-
     # TODO:
     # https://github.com/carla-simulator/carla/blob/master/PythonAPI/carla/source/libcarla/Geom.cpp#L236
     @overload
@@ -242,13 +235,15 @@ class Transform:
         Applies this transformation to @a in_point (first translation then rotation).
         """
         ...
+
     @overload
     def transform(self, in_point: Vector3D) -> Vector3D:
         """
         Applies this transformation to @a in_point (first translation then rotation).
         """
         ...
-    def transform(self *args): # type: ignore
+
+    def transform(self, *args):  # type: ignore
         raise NotImplementedError
 
     # TODO:
@@ -281,8 +276,7 @@ class Transform:
         raise NotImplementedError
 
 
-class vector_of_transform(vector_of[Transform]):
-    ...
+class vector_of_transform(vector_of[Transform]): ...
 
 
 class BoundingBox:
@@ -317,7 +311,6 @@ class BoundingBox:
     @rotation.setter
     def rotation(self, val: Rotation) -> None:
         raise NotImplementedError
-
 
     def contains(self, point: Location, bbox_transform: Transform) -> bool:
         raise NotImplementedError

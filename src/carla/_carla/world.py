@@ -301,7 +301,7 @@ class MapLayer(IntEnum):
     Foliage = 0x1 << 2
     Ground = 0x1 << 3
     ParkedVehicles = 0x1 << 4
-    Particles = (0x1 << 5,)
+    Particles = 0x1 << 5
     Props = 0x1 << 6
     StreetLights = 0x1 << 7
     Walls = 0x1 << 8
@@ -309,9 +309,9 @@ class MapLayer(IntEnum):
 
 
 class MaterialParameter(IntEnum):
-    Normal = (0,)
-    AO_Roughness_Metallic_Emissive = (1,)
-    Diffuse = (2,)
+    Normal = 0
+    AO_Roughness_Metallic_Emissive = 1
+    Diffuse = 2
     Emissive = 3
 
 
@@ -358,9 +358,7 @@ class World:
     def get_settings(self) -> WorldSettings:
         raise NotImplementedError
 
-    def apply_settings(
-        self, settings: WorldSettings, seconds: float = 0.0
-    ) -> int:
+    def apply_settings(self, settings: WorldSettings, seconds: float = 0.0) -> int:
         """
         Return The id of the frame when the settings were applied.
         """
@@ -404,9 +402,7 @@ class World:
         """
         ...
 
-    def get_actors(
-        self, actor_ids: Optional[List[ActorId]] = None
-    ) -> ActorList:
+    def get_actors(self, actor_ids: Optional[List[ActorId]] = None) -> ActorList:
         raise NotImplementedError
 
     def spawn_actor(
@@ -483,9 +479,7 @@ class World:
     def get_traffic_light(self, landmark: LandMark) -> Actor:
         raise NotImplementedError
 
-    def gettraffic_light_from_opendrive_id(
-        self, trafficlight_id: SignId
-    ) -> Actor:
+    def gettraffic_light_from_opendrive_id(self, trafficlight_id: SignId) -> Actor:
         raise NotImplementedError
 
     def get_traffic_lights_from_waypoint(
@@ -493,9 +487,7 @@ class World:
     ) -> List[Actor]:
         raise NotImplementedError
 
-    def get_traffic_lights_in_junction(
-        self, junction_id: JuncId
-    ) -> List[Actor]:
+    def get_traffic_lights_in_junction(self, junction_id: JuncId) -> List[Actor]:
         raise NotImplementedError
 
     def reset_all_traffic_lights(self) -> None:

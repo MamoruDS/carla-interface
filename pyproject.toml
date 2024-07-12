@@ -12,7 +12,10 @@ build-backend = "hatchling.build"
 
 [tool.rye]
 managed = true
-dev-dependencies = ["ruff>=0.4.8"]
+dev-dependencies = [
+    "ruff>=0.4.8",
+    "pyserde[yaml]>=0.19.3",
+]
 
 [tool.hatch.metadata]
 allow-direct-references = true

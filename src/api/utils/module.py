@@ -1,12 +1,15 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from typing import overload
+from typing import Iterable, overload
 
 from pybind11_stubgen.structs import Identifier, Import, QualifiedName
 from typing_extensions import Self
 
 
 class ModulePath(tuple[Identifier, ...]):
+    _root: bool
+    """unset warning; use `hasattr`!"""
+
     def __str__(self):
         return ".".join(self)
 
@@ -20,6 +23,14 @@ class ModulePath(tuple[Identifier, ...]):
         else:
             return tuple(self)[key]
 
+    @classmethod
+    def root(cls, iterable: Iterable[Identifier]) -> Self:
+        path = cls.__new__(cls, iterable)
+        path._root = True
+        if path[0] == "" and path._root:
+            raise TypeError("relative path is not allowed")
+        return path
+
     def imports(self, *, names: list[Identifier] | None = None, all: bool = False):
         if all:
             name = Identifier("*")
@@ -28,6 +39,12 @@ class ModulePath(tuple[Identifier, ...]):
         else:
             raise NotImplementedError()
         return Import(name, QualifiedName([*self, name]))
+
+    def is_absolute(self) -> bool:
+        return hasattr(self, "_root") and self._root
+
+    def is_relative(self) -> bool:
+        return not self.is_absolute()
 
 
 @dataclass

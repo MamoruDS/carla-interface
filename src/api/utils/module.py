@@ -33,11 +33,13 @@ class ModuleUnreachableException(Exception):
 
 class Module:
     name: Identifier
+    is_file: bool
     parent: Module | None
     children: list[Module]
 
-    def __init__(self, name: Identifier):
+    def __init__(self, name: Identifier, *, is_file: bool = False):
         self.name = name
+        self.is_file = is_file
         self.children = []
         self.parent = None
 

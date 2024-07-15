@@ -65,11 +65,23 @@ class Module:
         self.children = []
         self.parent = None
 
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return "Module <{}>".format(self.abs())
+
     def append_child(self, child: Module):
         if child.parent:
             child.parent.remove_child(child)
         self.children.append(child)
         child.parent = self
+
+    def get_child(self, name: Identifier) -> Module:
+        for child in self.children:
+            if child.name == name:
+                return child
+        raise KeyError()
 
     def remove_child(self, child: Module):
         assert child.parent is self

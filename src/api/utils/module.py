@@ -1,5 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
+from typing import overload
 
 from pybind11_stubgen.structs import Identifier, Import, QualifiedName
 from typing_extensions import Self
@@ -9,6 +10,10 @@ class ModulePath(tuple[Identifier, ...]):
     def __str__(self):
         return ".".join(self)
 
+    @overload
+    def __getitem__(self, key: slice) -> Self: ...
+    @overload
+    def __getitem__(self, key: int) -> Identifier: ...
     def __getitem__(self, key) -> Self | Identifier:
         if isinstance(key, slice):
             return self.__new__(self.__class__, tuple(self).__getitem__(key))

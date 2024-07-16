@@ -1,7 +1,15 @@
+from __future__ import annotations
+from dataclasses import dataclass
 import builtins
 import importlib
 
 from pybind11_stubgen import structs
+
+
+@dataclass
+class TypeInStr:
+    name: str
+    params: list[TypeInStr] | None = None
 
 
 class TypeConvertor:

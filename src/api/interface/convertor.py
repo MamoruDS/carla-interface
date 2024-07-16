@@ -41,6 +41,9 @@ class TypeConvertor:
         except ImportError:
             return False
 
+    def fix(self, type_name: str, fixed: structs.QualifiedName):
+        self.caches[type_name].name = fixed
+
     def from_str(self, type_name: str) -> structs.ResolvedType:
         name = structs.QualifiedName.from_str(type_name)
         if type_name in dir(builtins):

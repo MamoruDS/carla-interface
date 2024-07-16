@@ -60,15 +60,15 @@ class ModulePath(tuple[Identifier, ...]):
 
 @dataclass
 class ModuleUnreachableException(Exception):
-    from_mod: Module
-    to: Module
+    from_mod: ModuleTree
+    to: ModuleTree
 
 
-class Module:
+class ModuleTree:
     name: Identifier
     is_file: bool
-    parent: Module | None
-    children: list[Module]
+    parent: ModuleTree | None
+    children: list[ModuleTree]
 
     def __init__(self, name: Identifier, *, is_file: bool = False):
         self.name = name
@@ -82,19 +82,19 @@ class Module:
     def __repr__(self) -> str:
         return "Module <{}>".format(self.abs())
 
-    def append_child(self, child: Module):
+    def append_child(self, child: ModuleTree):
         if child.parent:
             child.parent.remove_child(child)
         self.children.append(child)
         child.parent = self
 
-    def get_child(self, name: Identifier) -> Module:
+    def get_child(self, name: Identifier) -> ModuleTree:
         for child in self.children:
             if child.name == name:
                 return child
         raise KeyError()
 
-    def remove_child(self, child: Module):
+    def remove_child(self, child: ModuleTree):
         assert child.parent is self
         self.children.remove(child)
         child.parent = None
@@ -108,13 +108,13 @@ class Module:
 
         return ModulePath(path)
 
-    def root(self) -> Module:
+    def root(self) -> ModuleTree:
         root = self
         while root.parent:
             root = root.parent
         return root
 
-    def relative(self, other: Module) -> ModulePath:
+    def relative(self, other: ModuleTree) -> ModulePath:
         if self.root() is not other.root():
             raise ModuleUnreachableException(self, other)
         abs_self = self.abs()

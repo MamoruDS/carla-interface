@@ -56,6 +56,15 @@ class TypeConvertor:
                 self.caches[type_name] = structs.ResolvedType(name)
         return self.caches[type_name]  # shallow is okay
 
+    def from_value(self, value: TypeInStr) -> structs.ResolvedType:
+        params = []
+        for param in value.params or []:
+            params.append(self.from_value(param))
+        resolved = self.from_str(value.name)
+        if len(params):
+            resolved.parameters = params
+        return resolved
+
 
 class Convertor:
     def __init__(self): ...

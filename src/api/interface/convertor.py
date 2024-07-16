@@ -1,3 +1,6 @@
+import builtins
+import importlib
+
 from pybind11_stubgen import structs
 
 

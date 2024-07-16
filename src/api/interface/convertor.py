@@ -32,6 +32,8 @@ class TypeConvertor:
 
     def from_str(self, type_name: str) -> structs.ResolvedType:
         name = structs.QualifiedName.from_str(type_name)
+        if type_name in dir(builtins):
+            return structs.ResolvedType(name)
         if type_name not in self.caches:
             if self.is_importable(type_name):
                 self.imports.add(structs.Import(name[-1], name))

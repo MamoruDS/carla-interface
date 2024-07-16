@@ -35,7 +35,7 @@ class TypeConvertor:
         if type_name in dir(builtins):
             return structs.ResolvedType(name)
         if type_name not in self.caches:
-            if self.is_importable(type_name):
+            if len(type_name) > 1 and self.is_importable(name[0]):
                 self.imports.add(structs.Import(name[-1], name))
                 self.caches[type_name] = structs.ResolvedType(
                     structs.QualifiedName(name[-1:])

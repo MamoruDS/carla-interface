@@ -14,7 +14,7 @@ class TypeInStr:
 
 class TypeConvertor:
     imports: set[structs.Import]
-    pending: list[structs.QualifiedName]
+    pending: list[tuple[str, structs.QualifiedName]]
     no_cache: bool
     caches: dict[str, structs.ResolvedType]
     banned_modules: list[structs.Identifier] | None
@@ -52,7 +52,7 @@ class TypeConvertor:
                     structs.QualifiedName(name[-1:])
                 )
             else:
-                self.pending.append(name)
+                self.pending.append((type_name, name))
                 self.caches[type_name] = structs.ResolvedType(name)
         return self.caches[type_name]  # shallow is okay
 

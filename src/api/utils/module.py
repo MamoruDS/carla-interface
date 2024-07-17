@@ -42,11 +42,11 @@ class ModulePath(tuple[Identifier, ...]):
             raise TypeError("relative path is not allowed")
         return path
 
-    def imports(self, *, names: list[Identifier] | None = None, all: bool = False):
+    def imports(self, *, names: Iterable[Identifier] | None = None, all: bool = False):
         if all:
             name = Identifier("*")
         elif names is not None:
-            name = Identifier(", ".join(names))
+            name = Identifier(",".join(names))
         else:
             raise NotImplementedError()
         return Import(name, QualifiedName([*self, name]))

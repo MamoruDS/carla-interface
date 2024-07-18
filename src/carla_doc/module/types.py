@@ -10,6 +10,16 @@ Identifier = structs.Identifier
 Import = structs.Import
 
 
+class GetNamesRules(IntFlag):
+    NONE = 0
+    ATTRIBUTES = auto()
+    CLASSES = auto()
+    FUNCTIONS = auto()
+    TYPE_VARS = auto()
+    RE_EXPORT_ALT_IMPORTS = auto()
+    MODULE = auto()
+
+
 class ModulePath(Protocol):
     @overload
     def __getitem__(self, key: slice) -> Self: ...
@@ -35,13 +45,3 @@ class ModuleTree(Protocol):
     def abs(self) -> ModulePath: ...
     def root(self) -> ModuleTree: ...
     def relative(self, other: ModuleTree) -> ModulePath: ...
-
-
-class GetNamesRules(IntFlag):
-    NONE = 0
-    ATTRIBUTES = auto()
-    CLASSES = auto()
-    FUNCTIONS = auto()
-    TYPE_VARS = auto()
-    RE_EXPORT_ALT_IMPORTS = auto()
-    MODULE = auto()

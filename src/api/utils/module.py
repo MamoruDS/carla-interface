@@ -109,8 +109,7 @@ class ModuleTree:
         while mod.parent:
             mod = mod.parent
             path.insert(0, mod.name)
-
-        return ModulePath(path)
+        return ModulePath.root(path)
 
     def root(self) -> ModuleTree:
         root = self

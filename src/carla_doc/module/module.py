@@ -5,6 +5,7 @@ from typing_extensions import Self
 
 from . import errors as e
 from . import types as t
+from .register import DEFAULT_REGISTER
 
 
 class ModulePath(tuple[t.Identifier, ...], t.ModulePath):
@@ -159,3 +160,93 @@ class ModuleTree(t.ModuleTree):
                         "might caused by using the root module for the parent"
                     )
                 return mod.resolve(path[1:])
+
+
+class ModuleWrapper(t.ModuleWrapper):
+    _module: t.Module
+    _convertor: t.TypeConvertor
+    _imports: list[t.ImportAlt]
+    _exports_rules: t.GetNamesRules
+    _tree: ModuleTree
+    _register: t.ModuleRegister
+
+    def __init__(
+        self,
+        module: t.Module,
+        convertor: t.TypeConvertor,
+        register: t.ModuleRegister = DEFAULT_REGISTER,
+        imports: list[t.ImportAlt] | None = None,
+        exports_rules_negative=t.GetNamesRules.NONE,
+    ) -> None:
+        self._module = module
+        self._convertor = convertor
+        self._register = register
+        self._imports = imports or []
+        self._exports_rules = (
+            t.GetNamesRules.ATTRIBUTES
+            | t.GetNamesRules.CLASSES
+            | t.GetNamesRules.FUNCTIONS
+            | t.GetNamesRules.TYPE_VARS
+            | t.GetNamesRules.RE_EXPORT_ALT_IMPORTS ^ exports_rules_negative
+        )
+        self._tree = ModuleTree(module.name)
+        self._register.add(self)
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return "ModuleWrapper <{}>".format(self._tree.abs())
+
+    @property
+    def module(self):
+        return self._module
+
+    @property
+    def convertor(self):
+        return self._convertor
+
+    @property
+    def tree(self):
+        return self._tree
+
+    @property
+    def children(self):
+        return self._register.get_children(self)
+
+    def append_child(self, child: ModuleWrapper):
+        return self._register.append_child(self, child)
+
+    def exports(self) -> t.NamespaceDict:
+        items: t.NamespaceDict = {}
+        if t.GetNamesRules.ATTRIBUTES & self._exports_rules:
+            for attr in self._module.attributes:
+                items[attr.name] = (self, t.GetNamesRules.ATTRIBUTES)
+        if t.GetNamesRules.CLASSES & self._exports_rules:
+            for cl in self._module.classes:
+                items[cl.name] = (self, t.GetNamesRules.CLASSES)
+        if t.GetNamesRules.FUNCTIONS & self._exports_rules:
+            for fn in self._module.functions:
+                items[fn.name] = (self, t.GetNamesRules.FUNCTIONS)
+        if t.GetNamesRules.TYPE_VARS & self._exports_rules:
+            for tvar in self._module.type_vars:
+                items[tvar.name] = (self, t.GetNamesRules.TYPE_VARS)
+        if t.GetNamesRules.RE_EXPORT_ALT_IMPORTS & self._exports_rules:
+            for imports in self._imports:
+                items.update(imports.get_imported_namespace())
+        if t.GetNamesRules.MODULE & self._exports_rules:
+            for imports in self._imports:
+                items[imports.module.module.name] = (
+                    imports.module,
+                    t.GetNamesRules.MODULE,
+                )
+
+        return items
+
+    def fix_unresolved(
+        self, name: t.QualifiedName
+    ) -> tuple[t.Import | None, t.Identifier] | None:
+        raise NotImplementedError()
+
+    def bake_module(self) -> t.Module:
+        raise NotImplementedError()

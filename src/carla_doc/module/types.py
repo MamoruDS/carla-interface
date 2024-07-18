@@ -89,6 +89,7 @@ class ModuleWrapper(Protocol):
         self,
         module: Module,
         convertor: TypeConvertor,
+        register: ModuleRegister,
         imports: list[ImportAlt] | None = None,
         exports_rules_negative: GetNamesRules = GetNamesRules.NONE,
     ): ...
@@ -96,6 +97,8 @@ class ModuleWrapper(Protocol):
     def __repr__(self) -> str: ...
     @property
     def module(self) -> Module: ...
+    @property
+    def convertor(self) -> TypeConvertor: ...
     @property
     def tree(self) -> ModuleTree: ...
     @property

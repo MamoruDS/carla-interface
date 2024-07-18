@@ -1,20 +1,9 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from enum import IntFlag, auto
 from typing import Iterable, overload
 
 from pybind11_stubgen.structs import Identifier, Import, QualifiedName
 from typing_extensions import Self
-
-
-class GetNamesRules(IntFlag):
-    NONE = 0
-    ATTRIBUTES = auto()
-    CLASSES = auto()
-    FUNCTIONS = auto()
-    TYPE_VARS = auto()
-    RE_EXPORT_ALT_IMPORTS = auto()
-    MODULE = auto()
 
 
 class ModulePath(tuple[Identifier, ...]):

@@ -17,24 +17,30 @@ class TypeConvertor:
     pending: list[tuple[str, structs.QualifiedName]]
     no_cache: bool
     caches: dict[str, structs.ResolvedType]
-    banned_modules: list[structs.Identifier] | None
+    banned_modules: set[structs.Identifier]
     """useful for blocking certain modules, e.g., the parsing one."""
+    skipped_modules: set[structs.Identifier]
+    """assume modules are importable without checking, useful for external dependencies"""
 
     def __init__(
         self,
         no_cache: bool = False,
         *,
-        banned_modules: list[structs.Identifier] | None = None,
+        banned_modules: set[structs.Identifier] | None = None,
+        skipped_modules: set[structs.Identifier] | None = None,
     ) -> None:
         self.imports = set()
         self.pending = []
         self.no_cache = no_cache
         self.caches = {}
-        self.banned_modules = banned_modules
+        self.banned_modules = banned_modules or set()
+        self.skipped_modules = skipped_modules or set()
 
     def is_importable(self, module: structs.Identifier) -> bool:
-        if module in (self.banned_modules or []):
+        if module in self.banned_modules:
             return False
+        elif module in self.skipped_modules:
+            return True
         try:
             importlib.import_module(module)
             return True

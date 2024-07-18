@@ -55,16 +55,16 @@ class ModulePath(tuple[t.Identifier, ...], t.ModulePath):
 
 
 class ModuleTree(t.ModuleTree):
-    name: t.Identifier
-    is_file: bool
-    parent: ModuleTree | None
-    children: list[ModuleTree]
+    _name: t.Identifier
+    _is_file: bool
+    _parent: ModuleTree | None
+    _children: list[ModuleTree]
 
     def __init__(self, name: t.Identifier, *, is_file: bool = False):
-        self.name = name
-        self.is_file = is_file
-        self.children = []
-        self.parent = None
+        self._name = name
+        self._is_file = is_file
+        self._children = []
+        self._parent = None
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -72,35 +72,47 @@ class ModuleTree(t.ModuleTree):
     def __repr__(self) -> str:
         return "Module <{}>".format(self.abs())
 
+    @property
+    def is_file(self):
+        return self._is_file
+
+    @property
+    def children(self):
+        return self._children
+
+    @property
+    def parent(self):
+        return self._parent
+
     def append_child(self, child: ModuleTree):
-        if child.parent:
-            child.parent.remove_child(child)
-        self.children.append(child)
-        child.parent = self
+        if child._parent:
+            child._parent.remove_child(child)
+        self._children.append(child)
+        child._parent = self
 
     def get_child(self, name: t.Identifier) -> ModuleTree:
-        for child in self.children:
-            if child.name == name:
+        for child in self._children:
+            if child._name == name:
                 return child
         raise KeyError("child {} not exist in {}".format(name, self.abs()))
 
     def remove_child(self, child: ModuleTree):
-        assert child.parent is self
-        self.children.remove(child)
-        child.parent = None
+        assert child._parent is self
+        self._children.remove(child)
+        child._parent = None
 
     def abs(self) -> ModulePath:
-        path = [self.name]
+        path = [self._name]
         mod = self
-        while mod.parent:
-            mod = mod.parent
-            path.insert(0, mod.name)
+        while mod._parent:
+            mod = mod._parent
+            path.insert(0, mod._name)
         return ModulePath.root(path)
 
     def root(self) -> ModuleTree:
         root = self
-        while root.parent:
-            root = root.parent
+        while root._parent:
+            root = root._parent
         return root
 
     def relative(self, other: ModuleTree) -> ModulePath:

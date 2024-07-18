@@ -1,14 +1,21 @@
 from __future__ import annotations
+from dataclasses import dataclass
 from enum import IntFlag, auto
-from typing import Iterable, Protocol, overload
+from typing import Iterable, Protocol, TypeAlias, overload
 
 from typing_extensions import Self
 
 from pybind11_stubgen import structs
 
+# TODO: move this
+from ...api.interface.convertor import TypeConvertor
+
 Identifier = structs.Identifier
 Import = structs.Import
+Module = structs.Module
 QualifiedName = structs.QualifiedName
+
+NamespaceDict: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
 
 
 class GetNamesRules(IntFlag):
@@ -19,6 +26,17 @@ class GetNamesRules(IntFlag):
     TYPE_VARS = auto()
     RE_EXPORT_ALT_IMPORTS = auto()
     MODULE = auto()
+
+
+@dataclass
+class ImportAlt(Protocol):
+    module: ModuleWrapper
+    filter_rules: GetNamesRules | None = None
+    filter_names: list[Identifier] | None = None
+    import_all: bool = False
+
+    def get_imported_namespace(self) -> NamespaceDict: ...
+    def to_pybind11_import(self, import_from: ModuleWrapper) -> Import: ...
 
 
 class ModulePath(Protocol):
@@ -47,3 +65,27 @@ class ModuleTree(Protocol):
     def abs(self) -> ModulePath: ...
     def root(self) -> ModuleTree: ...
     def relative(self, other: ModuleTree) -> ModulePath: ...
+
+
+class ModuleWrapper(Protocol):
+    def __init__(
+        self,
+        module: Module,
+        convertor: TypeConvertor,
+        imports: list[ImportAlt] | None = None,
+        exports_rules_negative: GetNamesRules = GetNamesRules.NONE,
+    ): ...
+    def __str__(self) -> str: ...
+    def __repr__(self) -> str: ...
+    @property
+    def module(self) -> Module: ...
+    @property
+    def tree(self) -> ModuleTree: ...
+    @property
+    def children(self) -> set[ModuleWrapper]: ...
+    def append_child(self, child: ModuleWrapper): ...
+    def exports(self) -> NamespaceDict: ...
+    def fix_unresolved(
+        self, name: QualifiedName
+    ) -> tuple[Import | None, Identifier] | None: ...
+    def bake_module(self) -> Module: ...

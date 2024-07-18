@@ -119,10 +119,13 @@ class ModuleTree:
             raise ModuleUnreachableException(self, other)
         abs_self = self.abs()
         abs_other = other.abs()
-        path = ["."]
+        idx = 0
         for i in range(min(len(abs_self), len(abs_other))):
             if abs_self[i] == abs_other[i]:
+                idx = i + 1
                 continue
             else:
-                path = [""] * (len(abs_self) - i) + list(abs_other[i:])
+                idx = i
+                break
+        path = [""] * (len(abs_self) - idx) + list(abs_other[idx:])
         return ModulePath([Identifier(p) for p in path])

@@ -49,7 +49,11 @@ class ModulePath(tuple[Identifier, ...]):
             name = Identifier(",".join(names))
         else:
             raise NotImplementedError()
-        return Import(name, QualifiedName([*self, name]))
+        if self.is_relative() and self[0] != "":
+            self_path = ["", *self]
+        else:
+            self_path = [*self]
+        return Import(name, QualifiedName([*self_path, name]))
 
     def is_absolute(self) -> bool:
         return hasattr(self, "_root") and self._root

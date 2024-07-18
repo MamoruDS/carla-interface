@@ -51,12 +51,6 @@ class ModulePath(tuple[Identifier, ...]):
         return not self.is_absolute()
 
 
-@dataclass
-class ModuleUnreachableException(Exception):
-    from_mod: ModuleTree
-    to: ModuleTree
-
-
 class ModuleTree:
     name: Identifier
     is_file: bool

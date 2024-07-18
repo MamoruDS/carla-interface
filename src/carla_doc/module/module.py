@@ -130,3 +130,32 @@ class ModuleTree(t.ModuleTree):
                 break
         path = [""] * (len(abs_self) - idx) + list(abs_other[idx:])
         return ModulePath([t.Identifier(p) for p in path])
+
+    def resolve(self, path: ModulePath) -> ModuleTree:
+        if path.is_absolute():
+            mod = self.root()
+            for pi, name in enumerate(path):
+                if pi == 0:
+                    if mod._name != name:
+                        raise ImportError(name=name)
+                else:
+                    mod = mod.get_child(name)
+            return mod
+        else:
+            if len(path) == 0:
+                return self
+            else:
+                if len(path) > 1 and path[:2] == ("", ""):
+                    mod = self._parent
+                elif path[0] == "":
+                    if self._is_file:
+                        mod = self._parent
+                    else:
+                        mod = self
+                else:
+                    mod = self.get_child(path[0])
+                if mod is None:
+                    raise NotImplementedError(
+                        "might caused by using the root module for the parent"
+                    )
+                return mod.resolve(path[1:])

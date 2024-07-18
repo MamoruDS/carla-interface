@@ -1,12 +1,13 @@
 from __future__ import annotations
-from dataclasses import dataclass
 from typing import Iterable, overload
 
-from pybind11_stubgen.structs import Identifier, Import, QualifiedName
 from typing_extensions import Self
 
+from . import errors as e
+from . import types as t
 
-class ModulePath(tuple[Identifier, ...]):
+
+class ModulePath(tuple[t.Identifier, ...], t.ModulePath):
     _root: bool
     """unset warning; use `hasattr`!"""
 
@@ -16,33 +17,35 @@ class ModulePath(tuple[Identifier, ...]):
     @overload
     def __getitem__(self, key: slice) -> Self: ...
     @overload
-    def __getitem__(self, key: int) -> Identifier: ...
-    def __getitem__(self, key) -> Self | Identifier:
+    def __getitem__(self, key: int) -> t.Identifier: ...
+    def __getitem__(self, key) -> Self | t.Identifier:
         if isinstance(key, slice):
             return self.__new__(self.__class__, tuple(self).__getitem__(key))
         else:
             return tuple(self)[key]
 
     @classmethod
-    def root(cls, iterable: Iterable[Identifier]) -> Self:
+    def root(cls, iterable: Iterable[t.Identifier]) -> Self:
         path = cls.__new__(cls, iterable)
         path._root = True
         if path[0] == "" and path._root:
             raise TypeError("relative path is not allowed")
         return path
 
-    def imports(self, *, names: Iterable[Identifier] | None = None, all: bool = False):
+    def imports(
+        self, *, names: Iterable[t.Identifier] | None = None, all: bool = False
+    ):
         if all:
-            name = Identifier("*")
+            name = t.Identifier("*")
         elif names is not None:
-            name = Identifier(",".join(names))
+            name = t.Identifier(",".join(names))
         else:
             raise NotImplementedError()
         if self.is_relative() and self[0] != "":
             self_path = ["", *self]
         else:
             self_path = [*self]
-        return Import(name, QualifiedName([*self_path, name]))
+        return t.Import(name, t.QualifiedName([*self_path, name]))
 
     def is_absolute(self) -> bool:
         return hasattr(self, "_root") and self._root
@@ -51,13 +54,13 @@ class ModulePath(tuple[Identifier, ...]):
         return not self.is_absolute()
 
 
-class ModuleTree:
-    name: Identifier
+class ModuleTree(t.ModuleTree):
+    name: t.Identifier
     is_file: bool
     parent: ModuleTree | None
     children: list[ModuleTree]
 
-    def __init__(self, name: Identifier, *, is_file: bool = False):
+    def __init__(self, name: t.Identifier, *, is_file: bool = False):
         self.name = name
         self.is_file = is_file
         self.children = []
@@ -75,11 +78,11 @@ class ModuleTree:
         self.children.append(child)
         child.parent = self
 
-    def get_child(self, name: Identifier) -> ModuleTree:
+    def get_child(self, name: t.Identifier) -> ModuleTree:
         for child in self.children:
             if child.name == name:
                 return child
-        raise KeyError()
+        raise KeyError("child {} not exist in {}".format(name, self.abs()))
 
     def remove_child(self, child: ModuleTree):
         assert child.parent is self
@@ -102,7 +105,7 @@ class ModuleTree:
 
     def relative(self, other: ModuleTree) -> ModulePath:
         if self.root() is not other.root():
-            raise ModuleUnreachableException(self, other)
+            raise e.ModuleUnreachableException(self, other)
         abs_self = self.abs()
         abs_other = other.abs()
         idx = 0
@@ -114,4 +117,4 @@ class ModuleTree:
                 idx = i
                 break
         path = [""] * (len(abs_self) - idx) + list(abs_other[idx:])
-        return ModulePath([Identifier(p) for p in path])
+        return ModulePath([t.Identifier(p) for p in path])

@@ -8,6 +8,7 @@ from pybind11_stubgen import structs
 
 Identifier = structs.Identifier
 Import = structs.Import
+QualifiedName = structs.QualifiedName
 
 
 class GetNamesRules(IntFlag):
@@ -26,6 +27,7 @@ class ModulePath(Protocol):
     @overload
     def __getitem__(self, key: int) -> Identifier: ...
     def __getitem__(self, key) -> Self | Identifier: ...
+    def __len__(self) -> int: ...
     def __str__(self) -> str: ...
 
     @classmethod

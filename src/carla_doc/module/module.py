@@ -217,24 +217,27 @@ class ModuleWrapper(t.ModuleWrapper):
     def append_child(self, child: ModuleWrapper):
         return self._register.append_child(self, child)
 
-    def exports(self) -> t.NamespaceDict:
+    def exports(
+        self, rules_overwrite: t.GetNamesRules | None = None
+    ) -> t.NamespaceDict:
+        rules = rules_overwrite or self._exports_rules
         items: t.NamespaceDict = {}
-        if t.GetNamesRules.ATTRIBUTES & self._exports_rules:
+        if t.GetNamesRules.ATTRIBUTES & rules:
             for attr in self._module.attributes:
                 items[attr.name] = (self, t.GetNamesRules.ATTRIBUTES)
-        if t.GetNamesRules.CLASSES & self._exports_rules:
+        if t.GetNamesRules.CLASSES & rules:
             for cl in self._module.classes:
                 items[cl.name] = (self, t.GetNamesRules.CLASSES)
-        if t.GetNamesRules.FUNCTIONS & self._exports_rules:
+        if t.GetNamesRules.FUNCTIONS & rules:
             for fn in self._module.functions:
                 items[fn.name] = (self, t.GetNamesRules.FUNCTIONS)
-        if t.GetNamesRules.TYPE_VARS & self._exports_rules:
+        if t.GetNamesRules.TYPE_VARS & rules:
             for tvar in self._module.type_vars:
                 items[tvar.name] = (self, t.GetNamesRules.TYPE_VARS)
-        if t.GetNamesRules.RE_EXPORT_ALT_IMPORTS & self._exports_rules:
+        if t.GetNamesRules.RE_EXPORT_ALT_IMPORTS & rules:
             for imports in self._imports:
                 items.update(imports.get_imported_namespace())
-        if t.GetNamesRules.MODULE & self._exports_rules:
+        if t.GetNamesRules.MODULE & rules:
             for imports in self._imports:
                 items[imports.module.module.name] = (
                     imports.module,

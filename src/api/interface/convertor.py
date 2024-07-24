@@ -13,6 +13,11 @@ class TypeInStr:
 
 
 class TypeConvertor:
+    RE_FIX_BRACKETS_LHS = re.compile(r"[<(]")
+    RE_FIX_BRACKETS_RHS = re.compile(r"[>)]")
+    RE_TYPEVAR_WITH_PARAMS = re.compile(r"^([\w\.]+)(\[[\s\w,\.\(\)\[\]<>]+\])")
+    RE_PARAM_SPLITOR = re.compile(r",\s*(?![^\[]*\])")
+
     imports: set[structs.Import]
     pending: list[tuple[str, structs.QualifiedName]]
     no_cache: bool

@@ -1,4 +1,5 @@
 from .patcher import DocPatch
+from . import logging
 
 CARLA_DOC_PATCHER = DocPatch(
     {
@@ -9,3 +10,5 @@ CARLA_DOC_PATCHER = DocPatch(
         "params": "param_name",
     }
 )
+
+logging.setup(logging.LogLevel.DEBUG)

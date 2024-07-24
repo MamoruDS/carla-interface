@@ -2,8 +2,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 import builtins
 import importlib
+import re
 
 from pybind11_stubgen import structs
+
+from carla_doc.utils.logging import get_logger
+
+log = get_logger("carla_doc")
 
 
 @dataclass
@@ -40,6 +45,27 @@ class TypeConvertor:
         self.caches = {}
         self.banned_modules = banned_modules or set()
         self.skipped_modules = skipped_modules or set()
+
+    @classmethod
+    def fix_brackets(cls, text: str) -> str:
+        text = cls.RE_FIX_BRACKETS_LHS.sub("[", text)
+        text = cls.RE_FIX_BRACKETS_RHS.sub("]", text)
+        return text
+
+    @staticmethod
+    def fix_type_in_anchor(text: str) -> tuple[str, str | None]:
+        """return [fixed, href]"""
+        from xml.etree import ElementTree
+
+        if text.startswith("<"):
+            try:
+                root = ElementTree.fromstring(f"<root>{text}</root>")
+                a_tag = root.find(".//a")
+                if a_tag is not None and a_tag.text is not None:
+                    return a_tag.text, a_tag.attrib.get("href", None)
+            except Exception:
+                log.warning("skip anchor element convert")
+        return text, None
 
     def is_importable(self, module: structs.Identifier) -> bool:
         if module in self.banned_modules:

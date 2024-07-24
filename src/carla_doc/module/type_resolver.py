@@ -98,10 +98,3 @@ class TypeResolver(t.TypeResolver):
         if len(params):
             resolved.parameters = params
         return resolved
-
-
-class Convertor:
-    def __init__(self): ...
-
-    def arg_self(self) -> structs.Argument:
-        return structs.Argument(structs.Identifier("self"))

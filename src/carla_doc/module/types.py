@@ -7,12 +7,10 @@ from typing_extensions import Self
 
 from pybind11_stubgen import structs
 
-# TODO: move this
-from ...api.interface.convertor import TypeConvertor
-
 Identifier = structs.Identifier
 Import = structs.Import
 Module = structs.Module
+ResolvedType = structs.ResolvedType
 QualifiedName = structs.QualifiedName
 
 NamespaceDict: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
@@ -37,6 +35,20 @@ class ImportAlt(Protocol):
 
     def get_imported_namespace(self) -> NamespaceDict: ...
     def to_pybind11_import(self, import_from: ModuleWrapper) -> Import: ...
+
+
+@dataclass
+class TypeInStr:
+    name: str
+    params: list[TypeInStr] | None = None
+
+
+class TypeResolver(Protocol):
+    pending: list[tuple[str, QualifiedName]]
+
+    def fix(self, type_name: str, fixed: QualifiedName): ...
+    def from_str(self, type_name: str) -> ResolvedType: ...
+    def from_value(self, value: TypeInStr) -> ResolvedType: ...
 
 
 class ModulePath(Protocol):
@@ -88,7 +100,7 @@ class ModuleWrapper(Protocol):
     def __init__(
         self,
         module: Module,
-        convertor: TypeConvertor,
+        resolver: TypeResolver,
         register: ModuleRegister,
         imports: list[ImportAlt] | None = None,
         exports_rules_negative: GetNamesRules = GetNamesRules.NONE,
@@ -98,7 +110,7 @@ class ModuleWrapper(Protocol):
     @property
     def module(self) -> Module: ...
     @property
-    def convertor(self) -> TypeConvertor: ...
+    def resolver(self) -> TypeResolver: ...
     @property
     def tree(self) -> ModuleTree: ...
     @property

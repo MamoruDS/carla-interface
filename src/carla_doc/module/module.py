@@ -164,7 +164,7 @@ class ModuleTree(t.ModuleTree):
 
 class ModuleWrapper(t.ModuleWrapper):
     _module: t.Module
-    _convertor: t.TypeConvertor
+    _resolver: t.TypeResolver
     _imports: list[t.ImportAlt]
     _exports_rules: t.GetNamesRules
     _tree: ModuleTree
@@ -173,13 +173,13 @@ class ModuleWrapper(t.ModuleWrapper):
     def __init__(
         self,
         module: t.Module,
-        convertor: t.TypeConvertor,
+        resolver: t.TypeResolver,
         register: t.ModuleRegister = DEFAULT_REGISTER,
         imports: list[t.ImportAlt] | None = None,
         exports_rules_negative=t.GetNamesRules.NONE,
     ) -> None:
         self._module = module
-        self._convertor = convertor
+        self._resolver = resolver
         self._register = register
         self._imports = imports or []
         self._exports_rules = (
@@ -203,8 +203,8 @@ class ModuleWrapper(t.ModuleWrapper):
         return self._module
 
     @property
-    def convertor(self):
-        return self._convertor
+    def resolver(self):
+        return self._resolver
 
     @property
     def tree(self):

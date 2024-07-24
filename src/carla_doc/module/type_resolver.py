@@ -1,23 +1,17 @@
 from __future__ import annotations
-from dataclasses import dataclass
 import builtins
 import importlib
 import re
 
 from pybind11_stubgen import structs
 
-from carla_doc.utils.logging import get_logger
+from ..utils.logging import get_logger
+from . import types as t
 
 log = get_logger("carla_doc")
 
 
-@dataclass
-class TypeInStr:
-    name: str
-    params: list[TypeInStr] | None = None
-
-
-class TypeConvertor:
+class TypeResolver(t.TypeResolver):
     RE_FIX_BRACKETS_LHS = re.compile(r"[<(]")
     RE_FIX_BRACKETS_RHS = re.compile(r"[>)]")
     RE_TYPEVAR_WITH_PARAMS = re.compile(r"^([\w\.]+)(\[[\s\w,\.\(\)\[\]<>]+\])")
@@ -96,7 +90,7 @@ class TypeConvertor:
                 self.caches[type_name] = structs.ResolvedType(name)
         return self.caches[type_name]  # shallow is okay
 
-    def from_value(self, value: TypeInStr) -> structs.ResolvedType:
+    def from_value(self, value: t.TypeInStr) -> structs.ResolvedType:
         params = []
         for param in value.params or []:
             params.append(self.from_value(param))

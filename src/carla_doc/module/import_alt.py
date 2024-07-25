@@ -9,15 +9,23 @@ class ImportAlt(t.ImportAlt):
     filter_rules: t.GetNamesRules | None = None
     filter_names: list[t.Identifier] | None = None
     import_all: bool = False
+    import_module: bool = False
 
     def get_imported_namespace(self) -> t.NamespaceDict:
-        namespace = {}
+        namespace: t.NamespaceDict = {}
         exports = self.module.exports()
         if self.import_all:
             if self.filter_names is not None or self.filter_rules is not None:
                 # TODO: log warn skip
                 ...
             namespace.update(exports)
+        elif self.import_module:
+            if self.filter_names is not None or self.filter_rules is not None:
+                # TODO: log warn skip
+                ...
+            namespace.update(
+                {self.module.module.name: (self.module, t.GetNamesRules.MODULE)}
+            )
         else:
             if self.filter_rules is not None:
                 exports = {
@@ -32,5 +40,7 @@ class ImportAlt(t.ImportAlt):
         mp = import_from.tree.relative(self.module.tree)
         if self.import_all:
             return mp.imports(all=True)
+        elif self.import_module:
+            return mp.imports(names=[self.module.module.name])
         else:
             return mp.imports(names=self.get_imported_namespace().keys())

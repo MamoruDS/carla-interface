@@ -7,6 +7,8 @@ class Args:
 
     patches_root: str
 
+    extra_root: str
+
     # @alias=o
     output_root: str
 

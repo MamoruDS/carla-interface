@@ -27,6 +27,9 @@ Ensure you have the necessary dependencies installed.
 ```shell
 # install with rye
 rye sync --all-features
+
+# install with pip
+pip install -r requirements-dev.lock
 ```
 
 The stub files can be easily _built_ via a script, or you can explore our CLI [entry point](./src/carla_doc//__main__.py) to customize your own generation.

@@ -81,6 +81,25 @@ class Convertor:
                     return False
         return True
 
+    @classmethod
+    def cvt_class(cls, target: dt.DocClass, tc: TypeResolver) -> structs.Class:
+        if cls.is_enum(target):
+            return cls.cvt_enum(target, tc)
+        props: list[structs.Property] = []
+        methods: list[structs.Method] = []
+        for var in target.instance_variables or []:
+            props.append(cls.cvt_property(var, tc))
+        for method in target.methods or []:
+            cls.fix_special_method_params(method)
+            cls.fix_special_method_return(method)
+            methods.append(cls.cvt_method(method, tc))
+        return structs.Class(
+            structs.Identifier(target.class_name),
+            doc=cls.cvt_docstr(target.doc),
+            methods=methods,
+            properties=props,
+        )
+
     @staticmethod
     def cvt_docstr(doc: str | None) -> structs.Docstring | None:
         if doc is not None:
@@ -120,6 +139,49 @@ class Convertor:
                 f_type,
             ),
             None,
+        )
+
+    @classmethod
+    def cvt_method(cls, target: dt.DocClsMethod, tc: TypeResolver) -> structs.Method:
+        return_type, modifier = None, None
+        if target.return_type is not None:
+            return_type = tc.cvt_type(target.return_type, tc)
+        if target.static:
+            modifier = "static"
+        args: list[structs.Argument] = []
+        if modifier is None:
+            args.append(cls.arg_self())
+        for arg in target.params or []:
+            arg_type = None
+            if arg.type is not None:
+                arg_type = tc.cvt_type(arg.type, tc)
+            args.append(
+                structs.Argument(
+                    structs.Identifier(arg.param_name),
+                    annotation=arg_type,
+                )
+            )
+        return structs.Method(
+            structs.Function(
+                structs.Identifier(target.def_name),
+                args=args,
+                returns=return_type,
+                doc=cls.cvt_docstr(target.doc),
+            ),
+            modifier,
+        )
+
+    @classmethod
+    def cvt_module(
+        cls, target: dt.DocModule, tc: TypeResolver, name: str | None = None
+    ) -> structs.Module:
+        classes: list[structs.Class] = []
+        for class_ in target.classes:
+            classes.append(cls.cvt_class(class_, tc))
+        return structs.Module(
+            structs.Identifier(name or target.module_name),
+            doc=cls.cvt_docstr(target.doc),
+            classes=classes,
         )
 
     @classmethod

@@ -21,6 +21,51 @@ class Convertor:
         return structs.Argument(structs.Identifier("self"))
 
     @staticmethod
+    def fix_special_method_params(fn: dt.DocClsMethod):
+        params_map: dict[str, list[tuple[str, str | None]]] = {
+            "__bool__": [],
+            "__eq__": [("other", "typing_extensions.Self")],
+            "__float__": [],
+            # "__getitem__":
+            "__int__": [],
+            # "__init__":
+            "__len__": [],
+            "__ne__": [("other", "typing_extensions.Self")],
+            # "__non_zero__":
+            # "__setitem__":
+            "__str__": [],
+        }
+        params = params_map.get(fn.def_name, None)
+        if params is not None:
+            fn.params = []
+            for pn, pt in params:
+                fn.params.append(
+                    dt.DocClsMethodParam(
+                        param_name=pn,
+                        units=None,
+                        type=pt,
+                    )
+                )
+
+    @staticmethod
+    def fix_special_method_return(fn: dt.DocClsMethod):
+        return_map = {
+            "__bool__": "bool",
+            "__eq__": "bool",
+            "__float__": "float",
+            # "__getitem__":
+            "__int__": "int",
+            "__init__": None,
+            "__len__": "int",
+            "__ne__": "bool",
+            # "__non_zero__":
+            # "__setitem__":
+            "__str__": "str",
+        }
+        if fn.def_name in return_map:
+            fn.return_type = return_map[fn.def_name]
+
+    @staticmethod
     def is_enum(doc_cls: dt.DocClass) -> bool:
         if doc_cls.parent is not None:
             return False

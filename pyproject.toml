@@ -2,16 +2,13 @@
 name = "carla-interface"
 version = "0.0.0"
 authors = [{ name = "MamoruDS", email = "mamoruds.io@gmail.com" }]
-dependencies = [
-    "pyserde[yaml]>=0.19.3",
-    "pybind11-stubgen>=2.5.1",
-    "typing-extensions>=4.12.2",
-]
+dependencies = ["typing-extensions>=4.12.2"]
 readme = "README.md"
 requires-python = ">= 3.8"
 
 [project.optional-dependencies]
 cli = ["typed-cap>=0.3.1"]
+build = ["pybind11-stubgen>=2.5.1", "pyserde[yaml]>=0.19.3", "pyyaml>=6.0.1"]
 
 [build-system]
 requires = ["hatchling"]

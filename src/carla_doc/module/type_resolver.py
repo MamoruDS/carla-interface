@@ -4,6 +4,7 @@ import importlib
 import re
 
 from pybind11_stubgen import structs
+from typing_extensions import Self
 
 from ..utils.logging import get_logger
 from . import types as t
@@ -20,7 +21,6 @@ class TypeResolver(t.TypeResolver):
 
     imports: set[structs.Import]
     pending: list[tuple[str, structs.QualifiedName]]
-    no_cache: bool
     caches: dict[str, structs.ResolvedType]
     banned_modules: set[structs.Identifier]
     """useful for blocking certain modules, e.g., the parsing one."""
@@ -29,17 +29,27 @@ class TypeResolver(t.TypeResolver):
 
     def __init__(
         self,
-        no_cache: bool = False,
         *,
         banned_modules: set[structs.Identifier] | None = None,
         skipped_modules: set[structs.Identifier] | None = None,
     ) -> None:
-        self.imports = set()
-        self.pending = []
-        self.no_cache = no_cache
-        self.caches = {}
         self.banned_modules = banned_modules or set()
         self.skipped_modules = skipped_modules or set()
+        self.setup()
+
+    @classmethod
+    def carla_default(cls) -> Self:
+        resolver = cls.__new__(cls)
+        resolver.banned_modules = set(
+            [
+                structs.Identifier("carla"),
+                structs.Identifier("string"),  # TODO: remove; fixed by resolver
+                structs.Identifier("array"),  # TODO: remove; fixed by resolver
+            ]
+        )
+        resolver.skipped_modules = set([structs.Identifier("ad")])
+        resolver.setup()
+        return resolver
 
     @classmethod
     def fix_brackets(cls, text: str) -> str:
@@ -172,3 +182,8 @@ class TypeResolver(t.TypeResolver):
         t_str = handle_type(name)
         log.debug(f' - got {t_str} from handle_type "{name}"')
         return t_str if t_str is None else self.from_value(t_str)
+
+    def setup(self):
+        self.imports = set()
+        self.pending = []
+        self.caches = {}

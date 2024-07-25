@@ -47,10 +47,8 @@ class TypeResolver(t.TypeResolver):
         return text
 
     @staticmethod
-    def fix_bs_types(type_name: str) -> str | None:
-        if type_name.startswith("uint"):
-            return "int"
-        elif type_name == "array":
+    def fix_bs_types(type_name: str | None) -> str | None:
+        if type_name == "array":
             return "list"
         elif type_name == "boolean":
             return "bool"
@@ -66,11 +64,13 @@ class TypeResolver(t.TypeResolver):
             carla::RssSensor.routing_targets: vector<carla.Transform>
             """
             return "list"
+        elif isinstance(type_name, str) and type_name.startswith("uint"):
+            return "int"
         else:
             return type_name
 
     @staticmethod
-    def fix_carla_imports(type_name: str) -> str | None:
+    def fix_carla_imports(type_name: str | None) -> str | None:
         if type_name == "command.Response":
             return "carla.libcarla.command.Response"
         elif type_name == "TextureFloatColor":

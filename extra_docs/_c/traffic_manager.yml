@@ -1,0 +1,15 @@
+---
+- module_name: traffic_manager
+  classes:
+    - class_name: RoadOption
+      doc: >
+        following https://github.com/carla-simulator/carla/blob/master/LibCarla/source/carla/trafficmanager/SimpleWaypoint.h#L25
+      instance_variables:
+        - var_name: Void
+        - var_name: Left
+        - var_name: Right
+        - var_name: Straight
+        - var_name: LaneFollow
+        - var_name: ChangeLaneLeft
+        - var_name: ChangeLaneRight
+        - var_name: RoadEnd

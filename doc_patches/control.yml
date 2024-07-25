@@ -1,0 +1,18 @@
+---
+- module_name: carla
+  classes:
+    - class_name: WalkerBoneControlOut
+      instance_variables:
+        - var_name: bone_transforms
+          type: null
+    - class_name: WalkerBoneControlIn
+      instance_variables:
+        - var_name: bone_transforms
+          type: list[tuple[str, carla.Transform]]
+      methods:
+        - def_name: __init__
+          _PATCH_REPLACE_FIELDS:
+            - params
+          params:
+            - param_name: "*arg"
+              type: tuple[str, carla.Transform]

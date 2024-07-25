@@ -1,0 +1,17 @@
+---
+- module_name: carla
+  classes:
+    - class_name: Client
+      methods:
+        - def_name: show_recorder_collisions
+          params:
+            - param_name: category1
+              type: str
+            - param_name: category2
+              type: str
+    - class_name: TrafficManager
+      methods:
+        - def_name: get_next_action
+          return: null
+        - def_name: get_all_actions
+          return: null

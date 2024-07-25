@@ -1,0 +1,9 @@
+---
+- module_name: carla
+  classes:
+    - class_name: Osm2Odr
+      methods:
+        - def_name: convert
+          params:
+            - param_name: settings
+              type: carla.Osm2OdrSettings

@@ -1,0 +1,122 @@
+---
+- module_name: command
+  classes:
+    - class_name: SpawnActor
+      methods:
+        - def_name: __init__
+          _PATCH_OVERLOAD_IDX: 2
+          params:
+            - param_name: parent
+              type: typing.Union[carla.Actor, int]
+        - def_name: then
+          params:
+            - param_name: command
+              type: null
+    - class_name: DestroyActor
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyVehiclePhysicsControl
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyVehicleControl
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyWalkerControl
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyTransform
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyWalkerState
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyTargetVelocity
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyTargetAngularVelocity
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyImpulse
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyForce
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyAngularImpulse
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ApplyTorque
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: SetSimulatePhysics
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: SetAutopilot
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: SetVehicleLightState
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: SetEnableGravity
+      instance_variables:
+        - var_name: actor_id
+          type: typing.Union[carla.Actor, int]
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]
+    - class_name: ShowDebugTelemetry
+      instance_variables:
+        - var_name: actor_id
+          type: typing.Union[carla.Actor, int]
+      methods:
+        - def_name: __init__
+          params:
+            - param_name: actor
+              type: typing.Union[carla.Actor, int]

@@ -22,4 +22,4 @@ dev-dependencies = ["ruff>=0.4.8"]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/carla"]
+packages = ["dist/carla"]

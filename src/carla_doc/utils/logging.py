@@ -15,6 +15,10 @@ class LogHandler(logging.StreamHandler):
         self.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
 
 
+def set_level(log_level: LogLevel) -> None:
+    logging.getLogger("carla_doc").setLevel(log_level.value.upper())
+
+
 def setup(log_level: LogLevel):
     logger = logging.getLogger("carla_doc")
     logger.setLevel(log_level.value.upper())

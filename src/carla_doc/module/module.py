@@ -164,6 +164,13 @@ class ModuleTree(t.ModuleTree):
 
 
 class ModuleWrapper(t.ModuleWrapper):
+    DEFAULT_EXPORTS_RULES = (
+        t.GetNamesRules.ATTRIBUTES
+        | t.GetNamesRules.CLASSES
+        | t.GetNamesRules.FUNCTIONS
+        | t.GetNamesRules.TYPE_VARS
+        | t.GetNamesRules.RE_EXPORT_ALT_IMPORTS
+    )
     _module: t.Module
     _resolver: t.TypeResolver
     _imports: list[t.ImportAlt]
@@ -183,13 +190,7 @@ class ModuleWrapper(t.ModuleWrapper):
         self._resolver = resolver
         self._register = register
         self._imports = imports or []
-        self._exports_rules = (
-            t.GetNamesRules.ATTRIBUTES
-            | t.GetNamesRules.CLASSES
-            | t.GetNamesRules.FUNCTIONS
-            | t.GetNamesRules.TYPE_VARS
-            | t.GetNamesRules.RE_EXPORT_ALT_IMPORTS ^ exports_rules_negative
-        )
+        self._exports_rules = self.DEFAULT_EXPORTS_RULES ^ exports_rules_negative
         self._tree = ModuleTree(module.name)
         self._register.add(self)
 

@@ -4,6 +4,7 @@ T = TypeVar("T", bound=dict[str, Any])
 
 
 class DocPatch:
+    KEY_MARKER_OVERLOAD_INDEX = "_PATCH_OVERLOAD_IDX"
     KEY_ACTION_REMOVE_NODE = "_PATCH_REMOVE_NODE"
     KEY_ACTION_REPLACE_NODE = "_PATCH_REPLACE_NODE"
     KEY_ACTION_REPLACE_FIELDS = "_PATCH_REPLACE_FIELDS"
@@ -38,6 +39,7 @@ class DocPatch:
         key_field: str,
         allow_append: bool = False,
     ):
+        # FIXME: method overloads support
         item_map = {item[key_field]: item for item in origin}
         for item in patch:
             target = item[key_field]

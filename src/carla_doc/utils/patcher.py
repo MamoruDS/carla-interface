@@ -44,6 +44,13 @@ class DocPatch:
                 # skip
                 ...
             elif field in self.key_fields:
+                if field not in origin:
+                    log.error(
+                        'failed to patch origin("{}") without key_field "{}"'.format(
+                            key_field, field
+                        )
+                    )
+                    origin[field]  # never
                 if isinstance(val, dict):
                     self.patch(origin[field], val)
                 elif isinstance(val, list):
@@ -61,33 +68,53 @@ class DocPatch:
         key_field: str,
         allow_append: bool = False,
     ):
-        # FIXME: method overloads support
-        item_map = {item[key_field]: item for item in origin}
+        item_map: dict[str, list[T]] = {}
+        for item in origin:
+            item_map.setdefault(item[key_field], []).append(item)
         for item in patch:
-            target = item[key_field]
+            target: str = item[key_field]
+            overload_idx: int | None = item.pop(self.KEY_MARKER_OVERLOAD_INDEX, None)
             if target in item_map:
                 if item.get(self.KEY_ACTION_REMOVE_NODE, False):
                     item.pop(self.KEY_ACTION_REMOVE_NODE)
                     log.debug(
                         "patching(REMOVE NODE) " + f'{type(origin)} with node "{item}"'
                     )
-                    origin.remove(item_map.pop(target))
+
+                    for oi, overload in enumerate(item_map[target]):
+                        if overload_idx is None or oi == overload_idx:
+                            origin.remove(overload)
+                            item_map[target].remove(overload)
                 elif item.get(self.KEY_ACTION_REPLACE_NODE, False):
                     item.pop(self.KEY_ACTION_REPLACE_NODE)
-                    idx = origin.index(item_map[target])
-                    log.debug(
-                        "patching(REPLACE NODE) "
-                        + f'{type(origin)}[{idx}] with node "{item}"'
-                    )
-                    origin[idx] = item
-                    item_map[target] = item
+                    for oi, overload in enumerate(item_map[target]):
+                        if overload_idx is None or oi == overload_idx:
+                            idx = origin.index(overload)
+                            log.debug(
+                                "patching(REPLACE NODE) "
+                                + f'{type(origin)}[{idx}] with node "{item}"'
+                            )
+                            origin[idx] = item
+                            item_map[target][oi] = item
                 else:
-                    self.patch(item_map[target], item)
+                    for oi, overload in enumerate(item_map[target]):
+                        if overload_idx is None or oi == overload_idx:
+                            try:
+                                self.patch(overload, item)
+                            except Exception as err:
+                                log.error(
+                                    f'failed to patch overload[{oi}] ("{key_field}")\n'
+                                    + f" > overload_idx : {overload_idx}\n"
+                                    + f' > overload.keys: {", ".join(overload)}\n'
+                                    + f' > item.keys    : {", ".join(item)}'
+                                )
+                                raise err
             elif allow_append:
                 log.debug(
                     "patching(APPEND NODE) " + f'{type(origin)} with node "{item}"'
                 )
                 origin.append(item)
+                item_map.setdefault(target, []).append(item)
             else:
                 log.error(
                     "panic during patching!\n"

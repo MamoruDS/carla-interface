@@ -3,7 +3,6 @@ import builtins
 import importlib
 import re
 
-from pybind11_stubgen import structs
 from typing_extensions import Self
 
 from ..utils.logging import get_logger
@@ -19,19 +18,19 @@ class TypeResolver(t.TypeResolver):
     RE_TYPE_PARSE = re.compile(r"^([\w\.]+)(\[[\s\w,\.\(\)\[\]<>]+\])")
     RE_PARAM_SPLITOR = re.compile(r",\s*(?![^\[]*\])")
 
-    imports: set[structs.Import]
-    pending: list[tuple[str, structs.QualifiedName]]
-    caches: dict[str, structs.ResolvedType]
-    banned_modules: set[structs.Identifier]
+    imports: set[t.Import]
+    pending: list[tuple[str, t.QualifiedName]]
+    caches: dict[str, t.ResolvedType]
+    banned_modules: set[t.Identifier]
     """useful for blocking certain modules, e.g., the parsing one."""
-    skipped_modules: set[structs.Identifier]
+    skipped_modules: set[t.Identifier]
     """assume modules are importable without checking, useful for external dependencies"""
 
     def __init__(
         self,
         *,
-        banned_modules: set[structs.Identifier] | None = None,
-        skipped_modules: set[structs.Identifier] | None = None,
+        banned_modules: set[t.Identifier] | None = None,
+        skipped_modules: set[t.Identifier] | None = None,
     ) -> None:
         self.banned_modules = banned_modules or set()
         self.skipped_modules = skipped_modules or set()
@@ -42,12 +41,12 @@ class TypeResolver(t.TypeResolver):
         resolver = cls.__new__(cls)
         resolver.banned_modules = set(
             [
-                structs.Identifier("carla"),
-                structs.Identifier("string"),  # TODO: remove; fixed by resolver
-                structs.Identifier("array"),  # TODO: remove; fixed by resolver
+                t.Identifier("carla"),
+                t.Identifier("string"),  # TODO: remove; fixed by resolver
+                t.Identifier("array"),  # TODO: remove; fixed by resolver
             ]
         )
-        resolver.skipped_modules = set([structs.Identifier("ad")])
+        resolver.skipped_modules = set([t.Identifier("ad")])
         resolver.setup()
         return resolver
 
@@ -111,7 +110,7 @@ class TypeResolver(t.TypeResolver):
                 log.warning("skip anchor element convert")
         return text, None
 
-    def is_importable(self, module: structs.Identifier) -> bool:
+    def is_importable(self, module: t.Identifier) -> bool:
         if module in self.banned_modules:
             return False
         elif module in self.skipped_modules:
@@ -122,25 +121,23 @@ class TypeResolver(t.TypeResolver):
         except ImportError:
             return False
 
-    def fix(self, type_name: str, fixed: structs.QualifiedName):
+    def fix(self, type_name: str, fixed: t.QualifiedName):
         self.caches[type_name].name = fixed
 
-    def from_str(self, type_name: str) -> structs.ResolvedType:
-        name = structs.QualifiedName.from_str(type_name)
+    def from_str(self, type_name: str) -> t.ResolvedType:
+        name = t.QualifiedName.from_str(type_name)
         if type_name in dir(builtins):
-            return structs.ResolvedType(name)
+            return t.ResolvedType(name)
         if type_name not in self.caches:
             if len(type_name) > 1 and self.is_importable(name[0]):
-                self.imports.add(structs.Import(name[-1], name))
-                self.caches[type_name] = structs.ResolvedType(
-                    structs.QualifiedName(name[-1:])
-                )
+                self.imports.add(t.Import(name[-1], name))
+                self.caches[type_name] = t.ResolvedType(t.QualifiedName(name[-1:]))
             else:
                 self.pending.append((type_name, name))
-                self.caches[type_name] = structs.ResolvedType(name)
+                self.caches[type_name] = t.ResolvedType(name)
         return self.caches[type_name]  # shallow is okay
 
-    def from_value(self, value: t.TypeInStr) -> structs.ResolvedType:
+    def from_value(self, value: t.TypeInStr) -> t.ResolvedType:
         params = []
         for param in value.params or []:
             params.append(self.from_value(param))
@@ -149,7 +146,7 @@ class TypeResolver(t.TypeResolver):
             resolved.parameters = params
         return resolved
 
-    def resolve_type(self, type_name: str) -> structs.Annotation | None:
+    def resolve_type(self, type_name: str) -> t.Annotation | None:
         def handle_type(t_name: str) -> t.TypeInStr | None:
             # log.debug(f"handling type with {type_name} ...")
             fixed = self.fix_bs_types(t_name)

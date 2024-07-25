@@ -15,6 +15,7 @@ class TypeResolver(t.TypeResolver):
     RE_FIX_BRACKETS_LHS = re.compile(r"[<(]")
     RE_FIX_BRACKETS_RHS = re.compile(r"[>)]")
     RE_TYPEVAR_WITH_PARAMS = re.compile(r"^([\w\.]+)(\[[\s\w,\.\(\)\[\]<>]+\])")
+    RE_TYPE_PARSE = re.compile(r"^([\w\.]+)(\[[\s\w,\.\(\)\[\]<>]+\])")
     RE_PARAM_SPLITOR = re.compile(r",\s*(?![^\[]*\])")
 
     imports: set[structs.Import]
@@ -137,3 +138,37 @@ class TypeResolver(t.TypeResolver):
         if len(params):
             resolved.parameters = params
         return resolved
+
+    def resolve_type(self, type_name: str) -> structs.Annotation | None:
+        def handle_type(t_name: str) -> t.TypeInStr | None:
+            # log.debug(f"handling type with {type_name} ...")
+            fixed = self.fix_bs_types(t_name)
+            fixed = self.fix_carla_imports(fixed)
+            if fixed is None:
+                return None
+            matched = self.RE_TYPE_PARSE.match(fixed)
+            if matched is not None:
+                params: list[t.TypeInStr] = []
+                for param in self.RE_PARAM_SPLITOR.split(
+                    (matched.group(2) or "[]")[1:-1]
+                ):
+                    param = param.strip()
+                    if not param:
+                        continue
+                    params.append(handle_type(param) or t.TypeInStr("typing.Any"))
+                t_val = handle_type(matched.group(1))
+                if t_val is None:
+                    return None
+                elif len(params) > 0:
+                    t_val.params = params
+            else:
+                t_val = t.TypeInStr(fixed)
+            return t_val
+
+        name, _ = self.fix_type_in_anchor(type_name)
+        if name is None:
+            return None
+        name = self.fix_brackets(name)
+        t_str = handle_type(name)
+        log.debug(f' - got {t_str} from handle_type "{name}"')
+        return t_str if t_str is None else self.from_value(t_str)

@@ -82,17 +82,17 @@ class Convertor:
         return True
 
     @classmethod
-    def cvt_class(cls, target: dt.DocClass, tc: TypeResolver) -> structs.Class:
+    def cvt_class(cls, target: dt.DocClass, resolver: TypeResolver) -> structs.Class:
         if cls.is_enum(target):
-            return cls.cvt_enum(target, tc)
+            return cls.cvt_enum(target, resolver)
         props: list[structs.Property] = []
         methods: list[structs.Method] = []
         for var in target.instance_variables or []:
-            props.append(cls.cvt_property(var, tc))
+            props.append(cls.cvt_property(var, resolver))
         for method in target.methods or []:
             cls.fix_special_method_params(method)
             cls.fix_special_method_return(method)
-            methods.append(cls.cvt_method(method, tc))
+            methods.append(cls.cvt_method(method, resolver))
         return structs.Class(
             structs.Identifier(target.class_name),
             doc=cls.cvt_docstr(target.doc),
@@ -108,17 +108,17 @@ class Convertor:
             return None
 
     @classmethod
-    def cvt_enum(cls, target: dt.DocClass, tc: TypeResolver) -> structs.Class:
+    def cvt_enum(cls, target: dt.DocClass, resolver: TypeResolver) -> structs.Class:
         fields: list[structs.Field] = []
         for var in target.instance_variables or []:
             if var.var_name == "None":
                 var.var_name = "NONE"
-            f = cls.cvt_field(var, tc)
+            f = cls.cvt_field(var, resolver)
             f.attribute.value = structs.Value("auto()", is_print_safe=True)
             fields.append(f)
         # FIXME:
-        tc.cvt_type("enum.IntEnum", tc)
-        tc.cvt_type("enum.auto", tc)
+        resolver.resolve_type("enum.IntEnum")
+        resolver.resolve_type("enum.auto")
         return structs.Class(
             structs.Identifier(target.class_name),
             doc=cls.cvt_docstr(target.doc),
@@ -127,10 +127,12 @@ class Convertor:
         )
 
     @classmethod
-    def cvt_field(cls, target: dt.DocClsInstanceVar, tc: TypeResolver) -> structs.Field:
+    def cvt_field(
+        cls, target: dt.DocClsInstanceVar, resolver: TypeResolver
+    ) -> structs.Field:
         f_type = None
         if target.type is not None:
-            f_type = tc.cvt_type(target.type, tc)
+            f_type = resolver.resolve_type(target.type)
         # TODO: structs.Field doesn't come with doc
         return structs.Field(
             structs.Attribute(
@@ -142,10 +144,12 @@ class Convertor:
         )
 
     @classmethod
-    def cvt_method(cls, target: dt.DocClsMethod, tc: TypeResolver) -> structs.Method:
+    def cvt_method(
+        cls, target: dt.DocClsMethod, resolver: TypeResolver
+    ) -> structs.Method:
         return_type, modifier = None, None
         if target.return_type is not None:
-            return_type = tc.cvt_type(target.return_type, tc)
+            return_type = resolver.resolve_type(target.return_type)
         if target.static:
             modifier = "static"
         args: list[structs.Argument] = []
@@ -154,7 +158,7 @@ class Convertor:
         for arg in target.params or []:
             arg_type = None
             if arg.type is not None:
-                arg_type = tc.cvt_type(arg.type, tc)
+                arg_type = resolver.resolve_type(arg.type)
             args.append(
                 structs.Argument(
                     structs.Identifier(arg.param_name),
@@ -173,11 +177,11 @@ class Convertor:
 
     @classmethod
     def cvt_module(
-        cls, target: dt.DocModule, tc: TypeResolver, name: str | None = None
+        cls, target: dt.DocModule, resolver: TypeResolver, name: str | None = None
     ) -> structs.Module:
         classes: list[structs.Class] = []
         for class_ in target.classes:
-            classes.append(cls.cvt_class(class_, tc))
+            classes.append(cls.cvt_class(class_, resolver))
         return structs.Module(
             structs.Identifier(name or target.module_name),
             doc=cls.cvt_docstr(target.doc),
@@ -188,14 +192,14 @@ class Convertor:
     def cvt_property(
         cls,
         target: dt.DocClsInstanceVar,
-        tc: TypeResolver,
+        resolver: TypeResolver,
         *,
         flag: PropertyFns = PropertyFns.FGET,
     ) -> structs.Property:
         prop_type, getter, setter = None, None, None
         doc = cls.cvt_docstr(target.doc)
         if target.type is not None:
-            prop_type = tc.cvt_type(target.type, tc)
+            prop_type = resolver.resolve_type(target.type)
         # TODO:
         # if PropertyFns.FDEL & flag:
         if PropertyFns.FGET & flag:

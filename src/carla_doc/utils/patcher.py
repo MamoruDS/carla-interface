@@ -18,7 +18,7 @@ class DocPatch:
     def __init__(self, key_fields):
         self.key_fields = key_fields
 
-    def _decide_key_field(self, patch: T) -> str:
+    def _decide_key_field(self, patch: dict[str, Any]) -> str:
         for field in patch.keys():
             if field in self.key_fields.values():
                 return field
@@ -56,6 +56,7 @@ class DocPatch:
                 elif isinstance(val, list):
                     self.patch_list(origin[field], val, self.key_fields[field])
                 else:
+                    # TODO:
                     raise NotImplementedError("unknown field:", field)
             else:
                 log.debug(f'patching {type(origin)}.{field} with value "{val}"')

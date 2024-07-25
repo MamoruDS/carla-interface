@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import deepcopy
 from typing import Iterable, overload
 
 from typing_extensions import Self
@@ -251,5 +252,9 @@ class ModuleWrapper(t.ModuleWrapper):
     ) -> tuple[t.Import | None, t.Identifier] | None:
         raise NotImplementedError()
 
-    def bake_module(self) -> t.Module:
-        raise NotImplementedError()
+    def get_print_ready_module(self) -> t.Module:
+        # TODO: sub_module
+        mod = deepcopy(self._module)  # FIXME: not necessary
+        for import_ in self._imports:
+            mod.imports.add(import_.to_pybind11_import(self))
+        return mod

@@ -32,6 +32,7 @@ class ImportAlt(Protocol):
     filter_rules: GetNamesRules | None = None
     filter_names: list[Identifier] | None = None
     import_all: bool = False
+    import_module: bool = False
 
     def get_imported_namespace(self) -> NamespaceDict: ...
     def to_pybind11_import(self, import_from: ModuleWrapper) -> Import: ...
@@ -44,6 +45,7 @@ class TypeInStr:
 
 
 class TypeResolver(Protocol):
+    imports: set[structs.Import]
     pending: list[tuple[str, QualifiedName]]
 
     def fix(self, type_name: str, fixed: QualifiedName): ...
@@ -83,6 +85,7 @@ class ModuleTree(Protocol):
     def abs(self) -> ModulePath: ...
     def root(self) -> ModuleTree: ...
     def relative(self, other: ModuleTree) -> ModulePath: ...
+    def resolve(self, path: ModulePath) -> ModuleTree: ...
 
 
 class ModuleRegister(Protocol):

@@ -167,7 +167,7 @@ class ModuleWrapper(t.ModuleWrapper):
     _resolver: t.TypeResolver
     _imports: list[t.ImportAlt]
     _exports_rules: t.GetNamesRules
-    _tree: ModuleTree
+    _tree: t.ModuleTree
     _register: t.ModuleRegister
 
     def __init__(

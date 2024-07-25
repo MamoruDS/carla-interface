@@ -4,9 +4,12 @@ from typing import Iterable, overload
 
 from typing_extensions import Self
 
+from ..utils.logging import get_logger
+from .register import DEFAULT_REGISTER
 from . import errors as e
 from . import types as t
-from .register import DEFAULT_REGISTER
+
+log = get_logger(__name__)
 
 
 class ModulePath(tuple[t.Identifier, ...], t.ModulePath):
@@ -251,7 +254,81 @@ class ModuleWrapper(t.ModuleWrapper):
     def fix_unresolved(
         self, name: t.QualifiedName
     ) -> tuple[t.Import | None, t.Identifier] | None:
-        raise NotImplementedError()
+        if len(name) < 2:
+            if len(name) == 1:
+                # TODO: search from local exports
+                # world.TextureFloatColor
+                ...
+            log.error(
+                f"fix_unresolved failed in module <{self.module.name}>\n"
+                + f" > reason: input name with invalid length <{len(name)}> (required >= 2)\n"
+                + f' > name: "{name}"\n'
+                + "   aborting..."
+            )
+            exit(1)
+
+        path = ModulePath.root(name[:-1])
+        target = name[-1]
+
+        mod: t.ModuleWrapper | None = None
+
+        # plan.a path is valid and following tree
+        try:
+            mod = self._register.get_by_tree(self._tree.resolve(path))
+            """
+            FIXME: buggy for re-export
+            e.g., carla.command.Foo (origin: carla.libcarla.command.Foo)
+            need Rules.MODULE be enabled
+            """
+        except Exception as err:
+            log.warning(
+                f"fix_unresolved failed in module <{self.module.name}>:\n"
+                + f" > err: {type(err)} - {err}\n"
+                + " > import\n"
+                + f"\t{target}\n"
+                + " > from\n"
+                + f"\t{path}\n"
+                + f'   with origin name: "{name}", trying plan-b'
+            )
+
+        # plan.b path is valid but need discover from exports
+        if mod is None:
+            # FIXME: length
+            target_mod = path[-1]
+            parent = self._register.get_by_tree(
+                self._tree.resolve(ModulePath.root(path[:-1]))
+            )
+            ep = parent.exports(
+                t.GetNamesRules.RE_EXPORT_ALT_IMPORTS | t.GetNamesRules.MODULE
+            ).get(target_mod)
+            if ep is not None:
+                mod, ep_type = ep
+                assert ep_type is t.GetNamesRules.MODULE
+
+        if mod is None:
+            raise KeyError("")
+
+        # FIXME: try resolve import
+
+        origin, _ = mod.exports().get(target, (None, None))
+        if origin is None:
+            raise NotImplementedError(
+                "type <{}> cannot be found in {}".format(target, mod)
+            )
+        elif origin is self:
+            return None, target
+        else:
+            try:
+                import_ = self._tree.relative(origin.tree).imports(names=[target])
+            except IndexError as err:
+                log.error(
+                    "fix_unresolved failed on import with relative\n"
+                    + f" > imports: {target}\n"
+                    + f" >    from: {origin}\n"
+                    + f" >      to: {self}"
+                )
+                raise err
+            return import_, target
 
     def get_print_ready_module(self) -> t.Module:
         # TODO: sub_module

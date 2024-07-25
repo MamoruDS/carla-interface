@@ -47,6 +47,45 @@ class TypeResolver(t.TypeResolver):
         return text
 
     @staticmethod
+    def fix_bs_types(type_name: str) -> str | None:
+        if type_name.startswith("uint"):
+            return "int"
+        elif type_name == "array":
+            return "list"
+        elif type_name == "boolean":
+            return "bool"
+        elif type_name == "callback":
+            return "typing.Callable"
+        elif type_name == "function":
+            return "typing.Callable"
+        elif type_name == "string":
+            return "str"
+        elif type_name == "vector":
+            """
+            TODO:
+            carla::RssSensor.routing_targets: vector<carla.Transform>
+            """
+            return "list"
+        else:
+            return type_name
+
+    @staticmethod
+    def fix_carla_imports(type_name: str) -> str | None:
+        if type_name == "command.Response":
+            return "carla.libcarla.command.Response"
+        elif type_name == "TextureFloatColor":
+            """carla::World::apply_flaot_color_texture_to_object etc."""
+            return "carla.TextureFloatColor"
+        elif type_name == "TextureColor":
+            """same as above"""
+            return "carla.TextureColor"
+        # elif type_name == "carla.OSM2ODRSettings":
+        #     """fixed by doc patch"""
+        #     return "carla.Osm2OdrSettings"
+        else:
+            return type_name
+
+    @staticmethod
     def fix_type_in_anchor(text: str) -> tuple[str, str | None]:
         """return [fixed, href]"""
         from xml.etree import ElementTree

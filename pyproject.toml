@@ -18,8 +18,11 @@ build-backend = "hatchling.build"
 managed = true
 dev-dependencies = ["ruff>=0.4.8"]
 
+[tool.rye.scripts]
+build = { cmd = "sh build.sh" }
+
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["dist/carla"]
+packages = ["dist/carla-stubs"]

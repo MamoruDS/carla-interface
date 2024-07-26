@@ -178,6 +178,7 @@ class ModuleWrapper(t.ModuleWrapper):
     _resolver: t.TypeResolver
     _imports: list[t.ImportAlt]
     _exports_rules: t.GetNamesRules
+    _printable_flags: t.MWPrintFlags
     _tree: t.ModuleTree
     _register: t.ModuleRegister
 
@@ -187,13 +188,15 @@ class ModuleWrapper(t.ModuleWrapper):
         resolver: t.TypeResolver,
         register: t.ModuleRegister = DEFAULT_REGISTER,
         imports: list[t.ImportAlt] | None = None,
-        exports_rules_negative=t.GetNamesRules.NONE,
+        exports_rules_negative: t.GetNamesRules = t.GetNamesRules.NONE,
+        print_flags: t.MWPrintFlags = t.MWPrintFlags.NONE,
     ) -> None:
         self._module = module
         self._resolver = resolver
         self._register = register
         self._imports = imports or []
         self._exports_rules = self.DEFAULT_EXPORTS_RULES ^ exports_rules_negative
+        self._printable_flags = print_flags
         self._tree = ModuleTree(module.name)
         self._register.add(self)
 
@@ -224,9 +227,9 @@ class ModuleWrapper(t.ModuleWrapper):
 
     def exports(
         self, rules_overwrite: t.GetNamesRules | None = None
-    ) -> t.NamespaceDict:
+    ) -> t.NamespaceItems:
         rules = rules_overwrite or self._exports_rules
-        items: t.NamespaceDict = {}
+        items: t.NamespaceItems = {}
         if t.GetNamesRules.ATTRIBUTES & rules:
             for attr in self._module.attributes:
                 items[attr.name] = (self, t.GetNamesRules.ATTRIBUTES)
@@ -335,4 +338,14 @@ class ModuleWrapper(t.ModuleWrapper):
         mod = deepcopy(self._module)  # FIXME: not necessary
         for import_ in self._imports:
             mod.imports.add(import_.to_pybind11_import(self))
+        if self._printable_flags & t.MWPrintFlags.INCLUDE_ADD:
+            mod.attributes.append(
+                t.Attribute(
+                    t.Identifier("__all__"),
+                    t.Value(
+                        "[{}]".format(",".join([f'"{i}"' for i in self.exports()])),
+                        is_print_safe=True,
+                    ),
+                )
+            )
         return mod

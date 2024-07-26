@@ -8,13 +8,15 @@ from typing_extensions import Self
 from pybind11_stubgen import structs
 
 Annotation = structs.Annotation
+Attribute = structs.Attribute
 Identifier = structs.Identifier
 Import = structs.Import
 Module = structs.Module
 ResolvedType = structs.ResolvedType
 QualifiedName = structs.QualifiedName
+Value = structs.Value
 
-NamespaceDict: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
+NamespaceItems: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
 
 
 class GetNamesRules(IntFlag):
@@ -27,6 +29,12 @@ class GetNamesRules(IntFlag):
     MODULE = auto()
 
 
+class MWPrintFlags(IntFlag):
+    NONE = 0
+    INCLUDE_ADD = auto()
+    """include `__add__` for the module"""
+
+
 @dataclass
 class ImportAlt(Protocol):
     module: ModuleWrapper
@@ -35,7 +43,7 @@ class ImportAlt(Protocol):
     import_all: bool = False
     import_module: bool = False
 
-    def get_imported_namespace(self) -> NamespaceDict: ...
+    def get_imported_namespace(self) -> NamespaceItems: ...
     def to_pybind11_import(self, import_from: ModuleWrapper) -> Import: ...
 
 
@@ -121,6 +129,7 @@ class ModuleWrapper(Protocol):
         register: ModuleRegister,
         imports: list[ImportAlt] | None = None,
         exports_rules_negative: GetNamesRules = GetNamesRules.NONE,
+        print_flags: MWPrintFlags = MWPrintFlags.NONE,
     ): ...
     def __str__(self) -> str: ...
     def __repr__(self) -> str: ...
@@ -135,7 +144,7 @@ class ModuleWrapper(Protocol):
     def append_child(self, child: ModuleWrapper): ...
     def exports(
         self, rules_overwrite: GetNamesRules | None = None
-    ) -> NamespaceDict: ...
+    ) -> NamespaceItems: ...
     def fix_unresolved(
         self, name: QualifiedName
     ) -> tuple[Import | None, Identifier] | None: ...

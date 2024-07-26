@@ -25,4 +25,4 @@ build = { cmd = "sh build.sh" }
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["dist/carla"]
+packages = ["dist/carla-stubs"]

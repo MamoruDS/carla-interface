@@ -24,6 +24,6 @@ def merge_imports(imports: Iterable[Import]) -> set[Import]:
 
     merged: set[Import] = set()
     for org, names in origin.items():
-        name = Identifier(",".join(list(names)))
+        name = Identifier(",".join(sorted(names)))
         merged.add(Import(name=name, origin=QualifiedName([*org, name])))
     return merged

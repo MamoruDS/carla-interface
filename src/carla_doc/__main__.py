@@ -23,5 +23,5 @@ if __name__ == "__main__":
     module = parse_carla_doc_to_module(doc_root, patches_root, extra_root)
 
     printer = Printer(invalid_expr_as_ellipses=True)
-    writer = Writer(printer)
+    writer = Writer("carla-stubs", printer)
     write_module(module, writer, output_root)

@@ -13,7 +13,7 @@ from .helpers import merge_imports
 from .module.import_alt import ImportAlt
 from .module.module import ModuleWrapper
 from .module.type_resolver import TypeResolver
-from .module.types import GetNamesRules
+from .module.types import GetNamesRules, MWPrintFlags
 from .utils import CARLA_DOC_PATCHER
 from .utils.logging import get_logger
 from .utils.writer import Writer
@@ -149,6 +149,7 @@ def parse_carla_doc_to_module(doc_root: Path, patches_root: Path, extra_root: Pa
             ImportAlt(loaded["weather"], filter_rules=DEFAULT_IMPORT_RULES),
             ImportAlt(loaded["world"], filter_rules=DEFAULT_IMPORT_RULES),
         ],
+        print_flags=MWPrintFlags.INCLUDE_ADD,
     )
 
     # module -> $ROOT/carla

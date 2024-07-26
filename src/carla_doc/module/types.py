@@ -8,11 +8,13 @@ from typing_extensions import Self
 from pybind11_stubgen import structs
 
 Annotation = structs.Annotation
+Attribute = structs.Attribute
 Identifier = structs.Identifier
 Import = structs.Import
 Module = structs.Module
 ResolvedType = structs.ResolvedType
 QualifiedName = structs.QualifiedName
+Value = structs.Value
 
 NamespaceItems: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
 
@@ -25,6 +27,12 @@ class GetNamesRules(IntFlag):
     TYPE_VARS = auto()
     RE_EXPORT_ALT_IMPORTS = auto()
     MODULE = auto()
+
+
+class MWPrintFlags(IntFlag):
+    NONE = 0
+    INCLUDE_ADD = auto()
+    """include `__add__` for the module"""
 
 
 @dataclass
@@ -121,6 +129,7 @@ class ModuleWrapper(Protocol):
         register: ModuleRegister,
         imports: list[ImportAlt] | None = None,
         exports_rules_negative: GetNamesRules = GetNamesRules.NONE,
+        print_flags: MWPrintFlags = MWPrintFlags.NONE,
     ): ...
     def __str__(self) -> str: ...
     def __repr__(self) -> str: ...

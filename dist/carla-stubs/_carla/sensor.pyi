@@ -1,6 +1,6 @@
-from .control import VehiclePhysicsControl, VehicleControl
+from .control import VehicleControl, VehiclePhysicsControl
 from .geom import Transform
-from .sensor_data import RssEgoDynamicsOnRoute, GBufferTextureID
+from .sensor_data import GBufferTextureID, RssEgoDynamicsOnRoute
 from ad.rss.state import ProperResponse
 from ad.rss.world import RssDynamics
 from enum import IntEnum, auto

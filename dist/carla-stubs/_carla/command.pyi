@@ -1,7 +1,7 @@
 from .actor import Actor, VehicleLightState
 from .blueprint import ActorBlueprint
-from .control import VehiclePhysicsControl, WalkerControl, VehicleControl
-from .geom import Vector3D, Transform
+from .control import VehicleControl, VehiclePhysicsControl, WalkerControl
+from .geom import Transform, Vector3D
 from typing import Union
 
 class ApplyAngularImpulse:

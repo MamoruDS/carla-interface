@@ -2,7 +2,7 @@
 
 from .actor import Actor
 from .command import Response
-from .world import World, MapLayer
+from .world import MapLayer, World
 
 class Client:
     """

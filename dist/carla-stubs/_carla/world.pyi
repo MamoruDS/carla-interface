@@ -1,8 +1,8 @@
-from .actor import Actor, TrafficSign, TrafficLight
-from .blueprint import FloatColor, ActorBlueprint, BlueprintLibrary, Color
-from .geom import Location, Rotation, Transform, BoundingBox, Vector3D
+from .actor import Actor, TrafficLight, TrafficSign
+from .blueprint import ActorBlueprint, BlueprintLibrary, Color, FloatColor
+from .geom import BoundingBox, Location, Rotation, Transform, Vector3D
 from .light_manager import LightManager
-from .map import Waypoint, Landmark, Map
+from .map import Landmark, Map, Waypoint
 from .sensor_data import CityObjectLabel
 from .snapshot import WorldSnapshot
 from .weather import WeatherParameters

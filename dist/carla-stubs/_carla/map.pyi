@@ -1,4 +1,4 @@
-from .geom import Transform, GeoLocation, BoundingBox, Location
+from .geom import BoundingBox, GeoLocation, Location, Transform
 from enum import IntEnum, auto
 
 class Junction:

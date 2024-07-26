@@ -224,9 +224,9 @@ class ModuleWrapper(t.ModuleWrapper):
 
     def exports(
         self, rules_overwrite: t.GetNamesRules | None = None
-    ) -> t.NamespaceDict:
+    ) -> t.NamespaceItems:
         rules = rules_overwrite or self._exports_rules
-        items: t.NamespaceDict = {}
+        items: t.NamespaceItems = {}
         if t.GetNamesRules.ATTRIBUTES & rules:
             for attr in self._module.attributes:
                 items[attr.name] = (self, t.GetNamesRules.ATTRIBUTES)

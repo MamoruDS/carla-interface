@@ -11,8 +11,8 @@ class ImportAlt(t.ImportAlt):
     import_all: bool = False
     import_module: bool = False
 
-    def get_imported_namespace(self) -> t.NamespaceDict:
-        namespace: t.NamespaceDict = {}
+    def get_imported_namespace(self) -> t.NamespaceItems:
+        namespace: t.NamespaceItems = {}
         exports = self.module.exports()
         if self.import_all:
             if self.filter_names is not None or self.filter_rules is not None:

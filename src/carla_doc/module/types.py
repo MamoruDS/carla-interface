@@ -14,7 +14,7 @@ Module = structs.Module
 ResolvedType = structs.ResolvedType
 QualifiedName = structs.QualifiedName
 
-NamespaceDict: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
+NamespaceItems: TypeAlias = dict[Identifier, tuple["ModuleWrapper", "GetNamesRules"]]
 
 
 class GetNamesRules(IntFlag):
@@ -35,7 +35,7 @@ class ImportAlt(Protocol):
     import_all: bool = False
     import_module: bool = False
 
-    def get_imported_namespace(self) -> NamespaceDict: ...
+    def get_imported_namespace(self) -> NamespaceItems: ...
     def to_pybind11_import(self, import_from: ModuleWrapper) -> Import: ...
 
 
@@ -135,7 +135,7 @@ class ModuleWrapper(Protocol):
     def append_child(self, child: ModuleWrapper): ...
     def exports(
         self, rules_overwrite: GetNamesRules | None = None
-    ) -> NamespaceDict: ...
+    ) -> NamespaceItems: ...
     def fix_unresolved(
         self, name: QualifiedName
     ) -> tuple[Import | None, Identifier] | None: ...
